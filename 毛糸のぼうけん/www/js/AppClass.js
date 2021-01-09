@@ -56,7 +56,6 @@ var GameScene = Class.create(Scene, {
         Scene.call(this);
         this.isOnceSpin = false;
         this.isArrangeMove = false;
-        this.count = 0;
         direction = Direction.Forward;
         map = new TestSpriteGroupMap();
         this.addChild(map);
@@ -70,6 +69,7 @@ var GameScene = Class.create(Scene, {
     onenterframe : function() {
         //タッチ開始座標の取得
         this.on(Event.TOUCH_START, function(e) {
+            // 菊地追記 2020/09/28
             this.isOnceSpin = false;
             this.isArrangeMove = false;
             TouchStartX = e.x;
@@ -110,7 +110,7 @@ var GameScene = Class.create(Scene, {
             {
                 
             }
-            //2020/09/28　タッチ処理修正(菊地)
+            // 2020/09/28　タッチ処理修正(菊地)
             //右フリック
             //タッチ開始x座標よりタッチ終了x座標が150ピクセル以上大きい
             //タッチ終了y座標がタッチ開始y座標の±30ピクセルの範囲以内
@@ -120,7 +120,6 @@ var GameScene = Class.create(Scene, {
                 if(map.isSpin && !this.isOnceSpin){
                     map.isRun = false;
                     map.Rotate(-this.SetRot());
-                    //console.log(map.rotation);
                 }
             }
             //下ドラッグ終了
@@ -131,37 +130,25 @@ var GameScene = Class.create(Scene, {
                 player.UpFlg = true;             //毛糸玉に登る動作を始める
             }
         });
-
-        //回転タイプ決定
-        //rotType = this.SetRot();
         
+        // 2020/09/28 菊地追加
         if(this.isOnceSpin){
             //回転入力処理が終わったら走行処理を再開
-            this.count++;
             direction += 1;
             if(direction > Direction.Left){
                 direction = Direction.Forward;
             }
             this.isOnceSpin = false;
             map.isSpin = false;
-            // console.log(direction);
-            // console.log("Player X:" + player.x + "Player Y:" + player.y);
-            // console.log(map.originX);
-            // console.log(map.originY);
 
             if(!this.isArrangeMove){
                 this.isArrangeMove = true;
             }
-            // core.stop();
-            // setTimeout("core.resume()", 1000);
-            //map.x -= MapYSpeed / MapYSpeed;
-            //setTimeout("console.log('5秒間待ちました')", 5000);
- 
-            //map.isRun = true;
         }
     },
 
-    //回転する角度を決定する
+    // 菊地作成
+    // 回転する角度を決定する
     SetRot : function(){
         switch(direction){
             case Direction.Forward:
@@ -177,8 +164,6 @@ var GameScene = Class.create(Scene, {
                 rotType = RotType.LeftRot;
                 break;
         }
-        //console.log(direction);
-
         return rotType;
     }
 });
@@ -197,7 +182,6 @@ var Player = Class.create(Sprite, {
         this.FullDownFlg = false;      //毛糸玉から完全に降りているか判定するフラグ･･･true = 降りている    false = 降りていない
         this.UpFlg = false;            //毛糸玉に登る動作中か判定するフラグ･･･true = 登っている    false = 登っていない
     },
-
     onenterframe : function() {
         this.frame = PlayerFrame;
         this.jump();
@@ -216,7 +200,6 @@ var Player = Class.create(Sprite, {
             }
         }
     },
-
     //毛糸玉から降りる動作をするためのメソッド
     Down : function() {
         if (this.DownFlg) {
@@ -228,7 +211,6 @@ var Player = Class.create(Sprite, {
             }
         }
     },
-
     //毛糸玉に登る動作をするためのメソッド
     Up : function() {
         if (this.UpFlg) {
@@ -292,23 +274,21 @@ var TestSpriteGroupMap = Class.create(Group, {
             }
         }
     },
-
     onenterframe : function() {
         if(gamescene.isArrangeMove){
             gamescene.isArrangeMove = false;
-            this.y += MapTileSize;
             this.isRun = true;
-            //setTimeout("console.log('2秒間待ちます')",5000);
         }
 
         if(this.isRun){
             this.y += MapYSpeed;
         }
     },
-
+    // 2020/09/28 菊地作成
     //回転用関数(原点が設定されてない場合は何もしない)
     Rotate : function (angle) {
         if(this.originX == 0 || this.originY == 0){ return; }
+        if(this.originX === null && this.originY === null) return;
         
         this.rotation += Math.sign(angle) * this.spinSpeed;
         //既に到達目標角度以上になったら目標角度に設定
@@ -327,7 +307,24 @@ var TestSpriteGroupMap = Class.create(Group, {
             }
         }
     },
+    // 2020/09/28 菊地作成
+    //回転用関数(こちらのほうがいい感じだったがすごくおかしくなる)
+    // AnimRotate : function(angle, time, easing){
+    //     if(this.originX == 0 || this.originY == 0) return;
+    //     if(this.originX === null && this.originY === null) return;
 
+    //     // Timelineはonenterframeでは処理させない(何回も処理してしまうため)
+    //     // ただし位置がずれる問題が発生中　フレーム処理で加算する値が一瞬だけx座標のほうに入ってしまう
+    //     if(easing == null){
+    //         this.tl.rotateTo(angle, time);
+    //         gamescene.isOnceSpin = true;
+    //     }
+    //     else{ 
+    //         this.tl.rotateTo(angle, time);
+    //         gamescene.isOnceSpin = true;
+    //     }
+    // },
+    // 2020/09/28 菊地作成
     //回転出来る場所かどうか
     IsSpinPlace : function (x, y){
         if(x - 1 < 0){ return false; }
@@ -410,6 +407,7 @@ var TestSpriteGroupMap = Class.create(Group, {
     }
 });
 
+// 2020/09/28 菊地作成
 //★★★　テストスプライトマップチップクラス　★★★
 var TestMapTip = Class.create(Sprite, { 
     initialize : function(_x, _y, mapTipFrame) {
@@ -419,7 +417,6 @@ var TestMapTip = Class.create(Sprite, {
         this.frame = mapTipFrame;
         this.image = core.assets['ImgMap'];
     },
-
     onenterframe : function() {
         if(this.frame === MAP_ROAD){
             if(this.intersect(yarnball)){ 
@@ -429,18 +426,5 @@ var TestMapTip = Class.create(Sprite, {
             }
             else{ map.isSpin = false; }
         }
-
-        // if(core.actualFps >= 60){
-        //     //ゲームオーバー処理(仮なので適当)
-        //     if(this.frame == MAP_EMPTY){
-        //         if(this.intersect(yarnball)){
-        //             map.isRun = false;
-        //             //本来はここでリザルト画面に遷移
-        //             //今はラベル出してます
-        //             var gameover = new TestGameOverSprite();
-        //             gamescene.addChild(gameover);
-        //         }
-        //     }
-        // }
     },
 });

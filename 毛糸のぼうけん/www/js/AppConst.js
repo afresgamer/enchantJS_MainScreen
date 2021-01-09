@@ -26,6 +26,7 @@ var Direction = {
     Left : 4
 };
 var direction = Direction.Forward;
+//2020/09/29 菊地作成
 //回転する角度
 var RotType = {
     ForwardRot : 90,
@@ -51,7 +52,8 @@ const StartX = 100;
 //スタート画像のy座標
 const StartY = 400;
 //タッチ処理判定の座標移動差
-const TouchDifference = 150;
+// const TouchDifference = 150;
+const TouchDifference = 80;
 //タッチ処理判定の方向性振れ幅の座標範囲
 const TouchWithin = 30;
 //プレイヤーのサイズ
@@ -95,6 +97,10 @@ const MapYSpeed = 12;
 //2020/09/28 菊地追記
 //マップ回転スピード
 const MAP_DEF_SPINSPEED = 3;
+//2020/09/28 菊地追記
+//移動フレーム数
+const MAP_FRAMESPEED = 30;
+//2020/09/28 菊地追記
 //道のフレームナンバー
 const MAP_ROAD = 3;
 //フィールドマップのフレームナンバー
